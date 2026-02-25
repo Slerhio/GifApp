@@ -44,7 +44,7 @@ class GifDetailsPage extends StatelessWidget {
         title: Text(title?.isEmpty ?? true ? 'GIF details' : title!),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -52,10 +52,7 @@ class GifDetailsPage extends StatelessWidget {
               if (url != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    url,
-                    fit: BoxFit.contain,
-                  ),
+                  child: Image.network(url, fit: BoxFit.contain),
                 )
               else
                 const SizedBox(
@@ -64,10 +61,7 @@ class GifDetailsPage extends StatelessWidget {
                 ),
               const SizedBox(height: 16),
               if (title != null && title.isNotEmpty)
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text(title, style: Theme.of(context).textTheme.titleLarge),
               if (username != null && username.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -174,8 +168,7 @@ class _GifSearchPageState extends State<GifSearchPage> {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         final data = json['data'] as List<dynamic>;
-        final pagination =
-            json['pagination'] as Map<String, dynamic>? ?? {};
+        final pagination = json['pagination'] as Map<String, dynamic>? ?? {};
 
         final totalCount = (pagination['total_count'] ?? 0) as int;
 
@@ -230,8 +223,7 @@ class _GifSearchPageState extends State<GifSearchPage> {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         final data = json['data'] as List<dynamic>;
-        final pagination =
-            json['pagination'] as Map<String, dynamic>? ?? {};
+        final pagination = json['pagination'] as Map<String, dynamic>? ?? {};
 
         final totalCount =
             (pagination['total_count'] ?? _totalAvailable) as int;
@@ -287,9 +279,7 @@ class _GifSearchPageState extends State<GifSearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('GIF Search (auto load)'),
-      ),
+      appBar: AppBar(title: const Text('GIF Search')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -313,10 +303,7 @@ class _GifSearchPageState extends State<GifSearchPage> {
             if (!_isLoading && _error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  _error!,
-                  style: const TextStyle(color: Colors.red),
-                ),
+                child: Text(_error!, style: const TextStyle(color: Colors.red)),
               ),
             if (!_isLoading && _error == null)
               Padding(
@@ -328,9 +315,7 @@ class _GifSearchPageState extends State<GifSearchPage> {
                 ),
               ),
             const SizedBox(height: 8),
-            Expanded(
-              child: _buildGrid(),
-            ),
+            Expanded(child: _buildGrid()),
           ],
         ),
       ),
@@ -353,16 +338,21 @@ class _GifSearchPageState extends State<GifSearchPage> {
     }
 
     if (_gifs.isEmpty) {
-      return const Center(
-        child: Text('No GIFs yet'),
-      );
+      return const Center(child: Text('No GIFs yet'));
     }
-
+    final width = MediaQuery.of(context).size.width;
+    int crossAxisCount = 2;
+    if (width >= 600) {
+      crossAxisCount = 3;
+    }
+    if (width >= 900) {
+      crossAxisCount = 4;
+    }
     return GridView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.only(top: 8),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
@@ -380,8 +370,7 @@ class _GifSearchPageState extends State<GifSearchPage> {
         final gif = _gifs[index];
         final images = gif['images'] as Map<String, dynamic>?;
 
-        final preview =
-            images?['fixed_width_small'] ?? images?['fixed_width'];
+        final preview = images?['fixed_width_small'] ?? images?['fixed_width'];
         final url = (preview as Map?)?['url'] as String?;
 
         if (url == null) {
@@ -390,18 +379,13 @@ class _GifSearchPageState extends State<GifSearchPage> {
 
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => GifDetailsPage(gif: gif),
-              ),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => GifDetailsPage(gif: gif)));
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              url,
-              fit: BoxFit.cover,
-            ),
+            child: Image.network(url, fit: BoxFit.cover),
           ),
         );
       },
